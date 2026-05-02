@@ -89,10 +89,65 @@ static int lower_bound(const State *s) {
     return lb;
 }
 
+/* ─── Greedy ERT+SPT para completar estados parciais ────────────────────── */
+
+/*
+ * Quando o B&B atinge o limite de profundidade sem solucao completa,
+ * completa o escalonamento com greedy: em cada passo escolhe a operacao
+ * pronta com menor tempo de inicio possivel (ERT), desempatando pela
+ * menor duracao (SPT). Garante sempre uma solucao valida.
+ */
+static void greedy_complete(State s) {
+    /* Variaveis locais — trabalha sobre copias, nao altera o estado original */
+    int mf[MAX_MACHINES], jf[MAX_JOBS], nxt[MAX_JOBS];
+    int ls[MAX_JOBS][MAX_OPS];
+
+    memcpy(mf,  s.machine_free, sizeof(mf));
+    memcpy(jf,  s.job_free,     sizeof(jf));
+    memcpy(nxt, s.next_op,      sizeof(nxt));
+    for (int j = 0; j < prob.num_jobs; j++)
+        memcpy(ls[j], s.start[j], prob.num_ops[j] * sizeof(int));
+
+    int remaining = total_ops - s.scheduled;
+    for (int k = 0; k < remaining; k++) {
+        int bj = -1, bo = -1, best_est = INT_MAX, best_dur = INT_MAX;
+        for (int j = 0; j < prob.num_jobs; j++) {
+            int o = nxt[j];
+            if (o >= prob.num_ops[j]) continue;
+            int m   = prob.machine[j][o];
+            int dur = prob.duration[j][o];
+            int est = jf[j] > mf[m] ? jf[j] : mf[m];
+            if (est < best_est || (est == best_est && dur < best_dur))
+                { bj = j; bo = o; best_est = est; best_dur = dur; }
+        }
+        int m   = prob.machine[bj][bo];
+        int end = best_est + prob.duration[bj][bo];
+        ls[bj][bo] = best_est;
+        mf[m] = end; jf[bj] = end; nxt[bj]++;
+    }
+
+    int mk = 0;
+    for (int j = 0; j < prob.num_jobs; j++)
+        for (int o = 0; o < prob.num_ops[j]; o++) {
+            int e = ls[j][o] + prob.duration[j][o];
+            if (e > mk) mk = e;
+        }
+
+    if (mk < best_makespan) {
+        best_makespan = mk;
+        for (int j = 0; j < prob.num_jobs; j++)
+            memcpy(best_start[j], ls[j], prob.num_ops[j] * sizeof(int));
+    }
+}
+
 /* ─── Branch & Bound recursivo ──────────────────────────────────────────── */
 
-/* Profundidade maxima de pesquisa. Quando atingida, o ramo e abandonado.
- * Valor 0 = sem limite (exacto). Ajustado no main() ao tamanho do problema. */
+/*
+ * Profundidade maxima de pesquisa.
+ * Quando atingida, completa com greedy em vez de descartar o ramo.
+ * Garante sempre uma solucao valida mesmo para instancias grandes.
+ * Valor 0 = sem limite (B&B exacto, so viavel para instancias pequenas).
+ */
 static int max_depth;
 
 static void bb(State s, int depth) {
@@ -111,8 +166,11 @@ static void bb(State s, int depth) {
     /* Pruning: descarta ramos que nao podem melhorar */
     if (lower_bound(&s) >= best_makespan) return;
 
-    /* Limite de profundidade */
-    if (max_depth > 0 && depth >= max_depth) return;
+    /* Limite de profundidade: completa com greedy em vez de descartar */
+    if (max_depth > 0 && depth >= max_depth) {
+        greedy_complete(s);
+        return;
+    }
 
     /* Branching: tenta colocar a proxima operacao de cada job */
     for (int j = 0; j < prob.num_jobs; j++) {
@@ -197,15 +255,17 @@ int main(int argc, char *argv[]) {
         for (int o = 0; o < prob.num_ops[j]; o++)
             ub += prob.duration[j][o];
 
-    /* Limite de profundidade: tem de ser >= total_ops para garantir solucoes
-     * completas. Usado para controlar o tempo de execucao em instancias grandes. */
-    max_depth = total_ops;   /* por defeito: explora ate solucoes completas */
+    /* Limite de profundidade:
+     *   - instancias pequenas (<=20 ops): B&B exacto (sem limite)
+     *   - instancias maiores: limita a profundidade e completa com greedy
+     * Pode ser sobreposto com BB_DEPTH=N */
+    max_depth = (total_ops <= 20) ? 0 : prob.num_jobs;
     {
         char *e = getenv("BB_DEPTH");
         if (e) max_depth = atoi(e);
     }
     fprintf(stderr, "BB_DEPTH=%d (%s)\n", max_depth,
-            max_depth == total_ops ? "exacto" : "limitado");
+            max_depth == 0 ? "exacto" : "hibrido B&B+greedy");
 
     /* Medicao de tempo: N repeticoes sem output */
     double total_time = 0.0;
