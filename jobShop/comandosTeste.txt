@@ -16,3 +16,9 @@ $env:BB_DEPTH = "3"
 ./jobshop_par.exe inst_20x20.jss result_par.txt 2 10
 ./jobshop_par.exe inst_20x20.jss result_par.txt 4 10
 ./jobshop_par.exe inst_20x20.jss result_par.txt 8 10
+
+# 4. benchmark powershell
+powershell -ExecutionPolicy Bypass -File .\benchmark.ps1 10
+
+# 5. graficos
+python graficos.py
