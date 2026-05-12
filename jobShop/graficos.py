@@ -2,7 +2,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# Dados lidos directamente do CSV (sem cabecalho)
+# Formato CSV:
+# SEQ: SEQ,reps,makespan,tempo_medio,tempo_total
+# PAR: PAR,threads,reps,makespan_ub,makespan_bb,tempo_medio,tempo_total
+
 threads, tempos, labels = [], [], []
 t1 = None
 
@@ -44,7 +47,8 @@ for t,tm in zip(threads,tempos):
                 fontsize=9,color="#2E86AB",fontweight="bold")
 ax.set_xlabel("Numero de Threads (p)")
 ax.set_ylabel("Tempo medio de execucao (s)")
-ax.set_title("Tempo de Execucao vs Numero de Threads\n(inst_20x20.jss, BB_DEPTH=3, media de 10 execucoes)")
+ax.set_title("Tempo de Execucao vs Numero de Threads\n"
+             "(inst_20x20.jss, BB_DEPTH=4, media de 5 execucoes)")
 ax.set_xticks(threads); ax.set_xticklabels(labels)
 ax.set_ylim(bottom=0); ax.legend()
 fig.tight_layout(); fig.savefig("grafico_tempo.png")
@@ -52,7 +56,8 @@ print("grafico_tempo.png guardado")
 
 # Grafico 2: Speedup
 fig,ax = plt.subplots(figsize=(8,5))
-ax.plot(threads,ideal,color="#cccccc",linestyle="--",linewidth=1.5,label="Speedup ideal (linear)")
+ax.plot(threads,ideal,color="#cccccc",linestyle="--",
+        linewidth=1.5,label="Speedup ideal (linear)")
 ax.plot(threads,speedups,color="#F18F01",marker="s",label="Speedup medido")
 ax.axhline(y=1.0,color="#aaaaaa",linestyle=":",linewidth=1)
 for t,sp in zip(threads,speedups):
@@ -61,7 +66,8 @@ for t,sp in zip(threads,speedups):
                 fontsize=9,color="#F18F01",fontweight="bold")
 ax.set_xlabel("Numero de Threads (p)")
 ax.set_ylabel("Speedup  S = T1 / Tp")
-ax.set_title("Speedup vs Numero de Threads\n(inst_20x20.jss, BB_DEPTH=3, media de 10 execucoes)")
+ax.set_title("Speedup vs Numero de Threads\n"
+             "(inst_20x20.jss, BB_DEPTH=4, media de 5 execucoes)")
 ax.set_xticks(threads); ax.set_xticklabels(labels)
 ax.set_ylim(bottom=0); ax.legend()
 fig.tight_layout(); fig.savefig("grafico_speedup.png")

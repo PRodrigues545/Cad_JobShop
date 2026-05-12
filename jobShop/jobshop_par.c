@@ -20,7 +20,7 @@
 #define MAX_JOBS        50
 #define MAX_MACHINES    50
 #define MAX_OPS         50
-#define MAX_NODES       (MAX_JOBS * MAX_JOBS)  /* nos do work pool */
+#define MAX_NODES       4096  /* nos do work pool */
 
 /* ─── Estruturas de dados ────────────────────────────────────────────────── */
 
@@ -400,13 +400,14 @@ int main(int argc, char *argv[]) {
             100.0*(ub - global_best)/ub);
     fprintf(stderr, "Pool size              : %d nos\n", pool_size);
     fprintf(stderr, "Tempo medio (%d reps)  : %.6f s\n", reps, media);
+    fprintf(stderr, "Tempo total            : %.6f s\n", total_time);
     fprintf(stderr, "Solucao %s\n", validate() ? "valida" : "INVALIDA");
 
     write_result(argv[2]);
 
-    /* CSV: PAR,threads,reps,makespan_ub,makespan_bb,tempo_medio */
-    printf("PAR,%d,%d,%d,%d,%.6f\n",
-           num_threads, reps, ub, global_best, media);
+    /* CSV: PAR,threads,reps,makespan_ub,makespan_bb,tempo_medio,tempo_total */
+    printf("PAR,%d,%d,%d,%d,%.6f,%.6f\n",
+           num_threads, reps, ub, global_best, media, total_time);
 
     omp_destroy_lock(&lock);
     return 0;

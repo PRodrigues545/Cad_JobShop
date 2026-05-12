@@ -292,11 +292,12 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Melhoria               : %.1f%%\n",
             100.0*(ub - best_makespan)/ub);
     fprintf(stderr, "Tempo medio (%d reps)  : %.6f s\n", reps, media);
+    fprintf(stderr, "Tempo total            : %.6f s\n", total_time);
     fprintf(stderr, "Solucao %s\n", validate() ? "valida" : "INVALIDA");
 
     write_result(argv[2]);
 
-    /* Linha CSV: SEQ,reps,makespan,tempo_medio */
-    printf("SEQ,%d,%d,%.6f\n", reps, best_makespan, media);
+    /* Linha CSV: SEQ,reps,makespan,tempo_medio,tempo_total */
+    printf("SEQ,%d,%d,%.6f,%.6f\n", reps, best_makespan, media, total_time);
     return 0;
 }
