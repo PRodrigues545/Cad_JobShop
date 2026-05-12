@@ -5,9 +5,9 @@
 # Depois de correr: python graficos.py
 # =============================================================================
 
-param([int]$Reps = 10)
+param([int]$Reps = 5)
 
-$env:BB_DEPTH = "3"
+$env:BB_DEPTH = "4"
 $INSTANCIA    = "inst_20x20.jss"
 $CSV          = "benchmark_results.csv"
 
