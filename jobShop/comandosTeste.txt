@@ -8,17 +8,17 @@ gcc -O2 -fopenmp -Wall -o jobshop_par.exe jobshop_par.c
 cat resultado_seq.txt
 cat resultado_par.txt
 
-# 3. Benchmark (o .sh não funciona no Windows)
-# Em vez do benchmark.sh, corre os comandos manualmente:
-$env:BB_DEPTH = "3"
-./jobshop_seq.exe inst_20x20.jss result_seq.txt 10
-./jobshop_par.exe inst_20x20.jss result_par.txt 1 10
-./jobshop_par.exe inst_20x20.jss result_par.txt 2 10
-./jobshop_par.exe inst_20x20.jss result_par.txt 4 10
-./jobshop_par.exe inst_20x20.jss result_par.txt 8 10
+
+Correr os comandos manualmente:
+$env:BB_DEPTH = "4"
+./jobshop_seq.exe inst_20x20.jss result_seq.txt 5
+./jobshop_par.exe inst_20x20.jss result_par.txt 1 5
+./jobshop_par.exe inst_20x20.jss result_par.txt 2 5
+./jobshop_par.exe inst_20x20.jss result_par.txt 4 5
+./jobshop_par.exe inst_20x20.jss result_par.txt 8 5
 
 # 4. benchmark powershell
-powershell -ExecutionPolicy Bypass -File .\benchmark.ps1 10
+powershell -ExecutionPolicy Bypass -File .\benchmark.ps1 5
 
 # 5. graficos
 python graficos.py
