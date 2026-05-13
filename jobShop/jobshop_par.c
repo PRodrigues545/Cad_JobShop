@@ -49,7 +49,7 @@ typedef struct {
 
 /* So leitura apos inicializacao — sem necessidade de protecao */
 static Problem prob;
-static int     total_ops;
+static int total_ops;
 
 /*
  * Leitura/escrita pelas threads — protegidas por lock:
@@ -64,7 +64,7 @@ static int     total_ops;
  * desatualizado, mas a correcao da solucao nao e afectada).
  */
 static volatile int global_best;
-static int          best_start[MAX_JOBS][MAX_OPS];
+static int best_start[MAX_JOBS][MAX_OPS];
 static omp_lock_t   lock;
 
 /* Work pool: nos gerados pela expansao da raiz, distribuidos pelas threads */

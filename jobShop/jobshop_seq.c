@@ -1,9 +1,5 @@
 /*
- * Job-Shop Scheduling - Implementacao Sequencial
  * Algoritmo: Branch & Bound (1 thread)
- *
- * Compilacao:  gcc -O2 -Wall -o jobshop_seq jobshop_seq.c
- * Uso:         ./jobshop_seq <entrada> <saida> [repeticoes]
  */
 
 #include <stdio.h>
@@ -17,8 +13,6 @@
 #define MAX_OPS         50
 
 /* ─── Estruturas de dados ────────────────────────────────────────────────── */
-
-/* Problema: lido do ficheiro, nunca alterado */
 typedef struct {
     int num_jobs;
     int num_machines;
@@ -30,7 +24,6 @@ typedef struct {
 /*
  * Estado do B&B — representa um escalonamento parcial.
  * Copiado por valor na stack a cada chamada recursiva.
- * Sem apontadores internos (conforme enunciado).
  */
 typedef struct {
     int machine_free[MAX_MACHINES]; /* proximo instante livre de cada maquina */
